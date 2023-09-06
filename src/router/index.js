@@ -23,6 +23,12 @@ const router = createRouter({
                     meta: { requiresAuth: true }
                 },
                 {
+                    path: '/marks',
+                    name: 'marks',
+                    component: () => import('../views/MarkView.vue'),
+                    meta: { requiresAuth: true }
+                },
+                {
                     path: '/payments',
                     name: 'payments',
                     component: () => import('../views/PaymentView.vue'),

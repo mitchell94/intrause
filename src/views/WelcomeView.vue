@@ -1,22 +1,12 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import { usePersonData } from '../composables/person-data';
 
-// import Swal from 'sweetalert2'
+const url = import.meta.env.VITE_API_URL
+const token = JSON.parse(localStorage.getItem('use'))
 
-let url = import.meta.env.VITE_API_URL
-let token = JSON.parse(localStorage.getItem('use'))
-
-let personData = ref({})
-let getPersonData = async () => {
-    let response = await fetch(url + '/intranet/person/profile', {
-        headers: {
-            'X-Accesss-Token': token
-        }
-    })
-    let responseData = await response.json()
-    personData.value = responseData
-}
-getPersonData()
+// COMPOSABLES
+const { person } = usePersonData(url, token)
 
 let studentSpecialtyData = ref(undefined)
 let getStudentSpecialty = async () => {
@@ -27,43 +17,41 @@ let getStudentSpecialty = async () => {
     })
     let responseData = await response.json()
     studentSpecialtyData.value = responseData
-    localStorage.setItem('student', responseData.id)
 }
 getStudentSpecialty()
 
-onMounted(() => {})
 </script>
 
 <template>
     <div class="row">
         <div class="col d-flex justify-content-center mt-3">
-            <h1 class="text-random text-center">INTRANET USE-FCS</h1>
+            <h1 class="text-random text-center">USE-FCS</h1>
         </div>
     </div>
     <div class="row">
         <div class="col d-flex justify-content-center mt-3">
             <h2 class="text-dark text-center">
-                Obsta. {{ personData.name + ' ' + personData.paternal + ' ' + personData.maternal }}
+                Obsta. {{ person.name + ' ' + person.paternal + ' ' + person.maternal }}
             </h2>
         </div>
     </div>
-    <div class="row">
-        <div class="col d-flex justify-content-center mt-3">
+    <div class="row justify-content-center">
+        <div class="col col-md-10 mt-3">
             <h2 class="text-dark text-center">
-                {{ personData.document_number }}
+                {{ person.document_number }}
             </h2>
         </div>
     </div>
-    <div class="row" v-if="studentSpecialtyData !== undefined">
-        <div class="col d-flex justify-content-center mt-3">
+    <div class="row justify-content-center" v-if="studentSpecialtyData !== undefined">
+        <div class="col col-md-10 mt-3">
             <h3 class="text-random text-center">
                 {{ studentSpecialtyData.Program.denomination }}
             </h3>
         </div>
     </div>
     <div class="row justify-content-center">
-        <div class="col-6 col-md-4 image-unsm"></div>
-        <div class="col-6 col-md-4 image-fcs"></div>
+        <div class="col-5 col-md-3 image-unsm"></div>
+        <div class="col-5 col-md-3 image-fcs"></div>
     </div>
 </template>
 
@@ -75,13 +63,11 @@ onMounted(() => {})
     background-size: contain;
     height: 300px;
 }
-
 .image-unsm {
-    background-image: url('../logo-unsm.png');
+    background-image: url('../assets/logo-unsm.png');
 }
-
 .image-fcs {
-    background-image: url('../logo-fcs.png');
+    background-image: url('../assets/logo-fcs.png');
 }
 p {
     font-size: 1.5rem;

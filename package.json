@@ -18,6 +18,7 @@
     "jose": "^4.14.4",
     "jquery": "^3.7.1",
     "jsonwebtoken": "^9.0.1",
+    "particles.js": "^2.0.0",
     "pinia": "^2.1.6",
     "sweetalert2": "^11.7.27",
     "vue": "^3.3.4",

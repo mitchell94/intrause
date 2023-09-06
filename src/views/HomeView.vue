@@ -1,32 +1,23 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { RouterView, useRouter } from 'vue-router'
-
+import { ref } from 'vue'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
+import { usePersonData } from '../composables/person-data'
 
-let router = useRouter()
-let url = import.meta.env.VITE_API_URL
-let token = JSON.parse(localStorage.getItem('use'))
+const router = useRouter()
+const url = import.meta.env.VITE_API_URL
+const token = JSON.parse(localStorage.getItem('use'))
+
+// COMPOSABLES
+const { personName } = usePersonData(url, token)
+
 let menu = ref(false)
 let menuClose = ref(false)
-
-// OBTIENE LOS DATOS DEL USUARIO INICIADO
-let personName = ref('')
-let getPersonData = async () => {
-    let response = await fetch(url + '/intranet/person/profile', {
-        headers: {
-            'X-Accesss-Token': token
-        }
-    })
-    let responseData = await response.json()
-    personName.value = responseData.name + ' ' + responseData.paternal + ' ' + responseData.maternal
-}
-getPersonData()
 
 // CERRAR LA SESION ACTUAL
 let closeSession = async () => {
     localStorage.clear()
-    router.push({ name: 'login', params: { reload: true } })
+    router.push({ name: 'login' })
 }
 
 // CAMBIAR LA CONTRASEÑA
@@ -74,8 +65,6 @@ let changePassword = async () => {
         })
     }
 }
-
-onMounted(() => {})
 </script>
 
 <template>
@@ -265,7 +254,7 @@ onMounted(() => {})
     padding: 10px 5px 10px 5px;
 }
 .btn-menu-md {
-    display: none;
+    display: none !important;
 }
 
 /* app menu */
@@ -278,14 +267,14 @@ onMounted(() => {})
 }
 .menu-bg {
     /* background-color: rgb(51, 51, 51); */
-    background-image: url('../assets/sidebar-4.jpg');
+    background-image: url('../assets/sidebar.jpg');
     height: 100%;
     min-height: 100%;
     overflow-y: auto;
     width: 75%;
 }
 .menu-bg > div {
-    background-color: rgba(109, 3, 58, 0.904);
+    background-color: #802433f6;
     min-height: 100%;
 }
 .app-brand {
@@ -319,7 +308,6 @@ onMounted(() => {})
 .menu-body > li,
 .submenu > li {
     border-radius: 3px;
-    /* display: flex; */
     min-height: 50px;
 }
 .menu-body > li:hover {
@@ -424,7 +412,7 @@ button:focus {
     /* background-color: rgb(23, 162, 184) !important; */
     /* background-color: rgb(52, 58, 64) !important; */
     /* background-color: rgb(248, 249, 250) !important; */
-    background-color: rgb(109, 3, 58) !important;
+    background-color: rgb(128, 36, 52) !important;
 }
 
 .text-random {
@@ -436,7 +424,7 @@ button:focus {
     /* color: rgb(23, 162, 184) !important; */
     /* color: rgb(52, 58, 64) !important; */
     /* color: rgb(248, 249, 250) !important; */
-    color: rgb(109, 3, 58) !important;
+    color: rgb(128, 36, 52) !important;
 }
 /* border top */
 .top-primary {
@@ -473,7 +461,7 @@ button:focus {
     /* border-top: solid 3px rgb(23, 162, 184) !important; */
     /* border-top: solid 3px rgb(52, 58, 64) !important; */
     /* border-top: solid 3px rgb(248, 249, 250) !ismportant; */
-    border-top: solid 3px rgb(109, 3, 58) !important;
+    border-top: solid 3px rgb(128, 36, 52) !important;
 }
 
 /* buttons */
@@ -496,8 +484,8 @@ button:focus {
     border-color: #f8f9fa; */
     /* background-color: #212529;
     border-color: #212529; */
-    background-color: #6d033a !important;
-    border-color: #6d033a !important;
+    background-color: #802434 !important;
+    border-color: #802434 !important;
     color: white !important;
 }
 .btn-random:hover {
@@ -519,8 +507,8 @@ button:focus {
     border-color: #25cff2; */
     /* background-color: #1c1f23;
     border-color: #1a1e21; */
-    background-color: #55022d !important;
-    border-color: #55022d !important;
+    background-color: #802434 !important;
+    border-color: #802434 !important;
 }
 .btn-light {
     background-color: rgb(226, 230, 234) !important;
