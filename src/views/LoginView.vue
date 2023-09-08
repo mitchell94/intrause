@@ -20,9 +20,9 @@ let login = async () => {
                 pass: pass.value
             })
         })
-        let responseData = await response.json()
-        if (responseData.message === 'Access') {
-            localStorage.setItem('use', JSON.stringify(responseData.token))
+        let data = await response.json()
+        if (data.message === 'Access') {
+            localStorage.setItem('use', JSON.stringify(data.token))
             router.push({ name: 'welcome' })
         } else {
             Swal.fire({
@@ -76,7 +76,7 @@ let login = async () => {
                 <div class="card mb-3 bg-transparent">
                     <div class="card-body">
                         <div class="mb-3 d-flex justify-content-center">
-                            <span style="font-size: 1.7rem">INTRANET</span>
+                            <span style="font-size: 1.7em">INTRANET</span>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="label-user">Usuario</label>
@@ -142,7 +142,7 @@ input:focus {
     cursor: pointer;
     text-decoration: underline;
 }
-.unsm-name {
+/* .unsm-name {
     font-size: 1.5em;
 }
 .fcs-name {
@@ -150,6 +150,15 @@ input:focus {
 }
 .use-name {
     font-size: 1.35em;
+} */
+.unsm-name {
+    font-size: 1em;
+}
+.fcs-name {
+    font-size: 0.8em;
+}
+.use-name {
+    font-size: 0.9em;
 }
 .show-images {
     display: none !important;
@@ -190,13 +199,13 @@ input:focus {
         max-height: 128px !important;
     }
     .unsm-name {
-        font-size: 1.8rem;
+        font-size: 1.8em;
     }
     .fcs-name {
-        font-size: 1.5rem;
+        font-size: 1.5em;
     }
     .use-name {
-        font-size: 1.7rem;
+        font-size: 1.7em;
     }
 }
 </style>

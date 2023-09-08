@@ -14,9 +14,9 @@ let getPersonData = async () => {
             'X-Accesss-Token': token
         }
     })
-    let responseData = await response.json()
-    personName.value = responseData.name + ' ' + responseData.paternal + ' ' + responseData.maternal
-    personDocument.value = responseData.document_number
+    let data = await response.json()
+    personName.value = data.name + ' ' + data.paternal + ' ' + data.maternal
+    personDocument.value = data.document_number
 }
 getPersonData()
 
@@ -27,8 +27,8 @@ let getStudentSpecialty = async () => {
             'X-Accesss-Token': token
         }
     })
-    let responseData = await response.json()
-    programName.value = responseData.Program.denomination.toUpperCase()
+    let data = await response.json()
+    programName.value = data.Program.denomination.toUpperCase()
 }
 getStudentSpecialty()
 
@@ -41,9 +41,9 @@ getStudentSpecialty()
 //             'X-Accesss-Token': token
 //         }
 //     })
-//     let responseData = await response.json()
-//     movementsList.value = responseData
-//     totalMovements.value = responseData.reduce(
+//     let data = await response.json()
+//     movementsList.value = data
+//     totalMovements.value = data.reduce(
 //         (total, item) => total + Number(item.voucher_amount),
 //         0
 //     )
@@ -77,13 +77,13 @@ let getPayments = async () => {
             'X-Accesss-Token': token
         }
     })
-    let responseData = await response.json()
-    paymentsList.value = responseData
-    totalPaymentsPayed.value = responseData
+    let data = await response.json()
+    paymentsList.value = data
+    totalPaymentsPayed.value = data
         .filter((e) => e.type === 'Pagado')
         .reduce((total, item) => total + Number(item.amount), 0)
 
-    totalPaymentsPendant.value = responseData
+    totalPaymentsPendant.value = data
         .filter((e) => e.type === 'Pendiente')
         .reduce((total, item) => total + Number(item.amount), 0)
 }

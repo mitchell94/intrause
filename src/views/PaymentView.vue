@@ -1,26 +1,17 @@
 <script setup>
 import { ref } from 'vue'
-import { usePersonData } from '../composables/person-data'
+import { usePerson } from '../composables/person'
+import { useProgram } from '../composables/program'
 import { useCurrentDate } from '../composables/current-date'
 
 const url = import.meta.env.VITE_API_URL
 const token = JSON.parse(localStorage.getItem('use'))
+const student = localStorage.getItem('student')
 
 // COMPOSABLES
-const { personName, personDocument } = usePersonData(url, token)
+const { personName, personDocument } = usePerson(url, token)
+const { programName } = useProgram(url, token, student)
 const { currentDate } = useCurrentDate()
-
-let programName = ref('')
-let getStudentSpecialty = async () => {
-    let response = await fetch(url + '/intranet/student-program', {
-        headers: {
-            'X-Accesss-Token': token
-        }
-    })
-    let responseData = await response.json()
-    programName.value = responseData.Program.denomination.toUpperCase()
-}
-getStudentSpecialty()
 
 // PAGOS----------------------------------------------
 let paymentsList = ref([])
@@ -29,16 +20,17 @@ let totalPaymentsPendant = ref(0)
 let getPayments = async () => {
     let response = await fetch(url + `/intranet/student-payment`, {
         headers: {
-            'X-Accesss-Token': token
+            'X-Accesss-Token': token,
+            'X-Student-Id': student
         }
     })
-    let responseData = await response.json()
-    paymentsList.value = responseData
-    totalPaymentsPayed.value = responseData
+    let data = await response.json()
+    paymentsList.value = data
+    totalPaymentsPayed.value = data
         .filter((e) => e.type === 'Pagado')
         .reduce((total, item) => total + Number(item.amount), 0)
 
-    totalPaymentsPendant.value = responseData
+    totalPaymentsPendant.value = data
         .filter((e) => e.type === 'Pendiente')
         .reduce((total, item) => total + Number(item.amount), 0)
 }
@@ -197,28 +189,32 @@ let printPayments = {
                         </div>
                     </div>
                 </div>
-                <span class="watermark">NO VÁLIDO PARA TRÁMITE</span>
+                <span class="watermark">SOLO LECTURA</span>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-.print-page {
-    width: 21cm;
-    min-height: 29.7cm;
-    padding: 1cm;
-    font-family: Arial, Helvetica, sans-serif;
-    position: relative;
+@media print {
+    .print-page {
+        width: 21cm;
+        min-height: 29.7cm;
+        padding: 1cm;
+        font-family: Arial, Helvetica, sans-serif;
+        position: relative;
+    }
 }
 .watermark {
     color: rgba(0, 0, 0, 0.17);
-    font-size: 3.5rem;
-    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9em;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
-    position: absolute;
-    top: 47.5%;
-    transform: rotate(-45deg);
+    position: fixed;
+    left: -5%;
+    top: 26%;
+    transform: rotate(-55deg);
+    text-align: center;
 }
 .image-unsm,
 .image-fcs {
@@ -236,20 +232,20 @@ let printPayments = {
     background-image: url('../assets/logo-fcs.png');
 }
 .unsm-name {
-    font-size: 1.4rem;
+    font-size: 1.4em;
 }
 .fcs-name {
-    font-size: 1.15rem;
+    font-size: 1.15em;
 }
 .use-name {
-    font-size: 1.3rem;
+    font-size: 1.3em;
 }
 .print-title {
     display: flex;
     justify-content: center;
     border-bottom: 2px solid black;
     font-weight: bold;
-    font-size: 1.7rem;
+    font-size: 1.7em;
     color: black;
 }
 table {
@@ -257,13 +253,13 @@ table {
 }
 .td-bold {
     font-weight: bold;
-    font-size: 0.8rem;
+    font-size: 0.8em;
 }
 .td-normal {
-    font-size: 0.8rem;
+    font-size: 0.8em;
 }
 th,
 td {
-    font-size: 0.7rem;
+    font-size: 0.7em;
 }
 </style>

@@ -1,6 +1,6 @@
 import { ref, watchEffect } from 'vue'
 
-function usePersonData(url, token) {
+function usePerson(url, token) {
     let person = ref({})
     let personName = ref('')
     let personDocument = ref('')
@@ -22,4 +22,4 @@ function usePersonData(url, token) {
     return { person, personName, personDocument }
 }
 
-export { usePersonData }
+export { usePerson }

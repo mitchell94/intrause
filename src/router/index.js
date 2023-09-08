@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import * as jose from 'jose'
 
 import LoginView from '../views/LoginView.vue'
+import WelcomeView from '../views/WelcomeView.vue'
 import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
@@ -13,26 +14,32 @@ const router = createRouter({
             component: LoginView
         },
         {
+            path: '/welcome',
+            name: 'welcome',
+            component: WelcomeView,
+            meta: { requiresAuth: true }
+        },
+        {
             path: '/home',
             component: HomeView,
             children: [
                 {
                     path: '/home',
-                    name: 'welcome',
-                    component: () => import('../views/WelcomeView.vue'),
-                    meta: { requiresAuth: true }
+                    name: 'dashboard',
+                    component: () => import('../views/DashboardView.vue'),
+                    meta: { requiresAuth: true, requiresStudent: true }
                 },
                 {
                     path: '/marks',
                     name: 'marks',
                     component: () => import('../views/MarkView.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true, requiresStudent: true }
                 },
                 {
                     path: '/payments',
                     name: 'payments',
                     component: () => import('../views/PaymentView.vue'),
-                    meta: { requiresAuth: true }
+                    meta: { requiresAuth: true, requiresStudent: true }
                 }
             ]
         }
@@ -48,6 +55,11 @@ router.beforeEach((to) => {
     }
     // Comprobar la existencia y validez del token
     if (to.meta.requiresAuth) {
+        if (to.meta.requiresStudent) {
+            if (!localStorage.getItem('student')) {
+                router.push({ name: 'welcome' })
+            }
+        }
         if (!localStorage.getItem('use')) {
             router.push({ name: 'login' })
         } else {

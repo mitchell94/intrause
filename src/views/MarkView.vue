@@ -1,46 +1,47 @@
 <script setup>
 import { ref } from 'vue'
+import { usePerson } from '../composables/person'
+import { useProgram } from '../composables/program'
 
 const url = import.meta.env.VITE_API_URL
 const token = JSON.parse(localStorage.getItem('use'))
+const student = localStorage.getItem('student')
+
+// COMPOSABLES
+const { personName, personDocument } = usePerson(url, token)
+const { programName } = useProgram(url, token, student)
 
 // RECORD ACADEMICO --------------------------------------
 let unityName = ref('')
-let programName = ref('')
 let sedeName = ref('')
-let personName = ref('')
-let personDocument = ref('')
 let registrationList = ref([])
 let totalCourses = ref(0)
 let totalCredits = ref(0)
 let generalAverage = ref(0)
-let totalAprovedCourses = ref(0)
-let totalAprovedCredits = ref(0)
-let percentAprovedCredits = ref(0)
+let aprovedCourses = ref(0)
+let aprovedCredits = ref(0)
+// let percentAprovedCredits = ref(0)
 let getAcademicRecord = async () => {
     let response = await fetch(url + `/intranet/student-academic-record`, {
         headers: {
-            'X-Accesss-Token': token
+            'X-Accesss-Token': token,
+            'X-Student-Id': student
         }
     })
-    let responseData = await response.json()
+    let data = await response.json()
 
     // Datos generales de texto
-    unityName.value = responseData.principalOrganicUnit.description.toUpperCase()
-    programName.value = responseData.studentData.Program.denomination.toUpperCase()
-    sedeName.value =
-        responseData.studentData.Program.Organic_unit_register.Campu.denomination.toUpperCase()
-    personName.value = responseData.studentData.Person.name
-    personDocument.value = responseData.studentData.Person.document_number
-    registrationList.value = responseData.registration
+    unityName.value = data.principalOrganicUnit.description.toUpperCase()
+    sedeName.value = data.studentData.Program.Organic_unit_register.Campu.denomination.toUpperCase()
+    registrationList.value = data.registration
 
     // Calcular total de cursos inscritos
-    totalCourses.value = responseData.registration
+    totalCourses.value = data.registration
         .map((reg) => reg.Registration_course.length)
         .reduce((total, course) => total + course, 0)
 
     // Calcular total de créditos inscritos
-    totalCredits.value = responseData.registration
+    totalCredits.value = data.registration
         .map((reg) =>
             reg.Registration_course.reduce(
                 (totalRegCredits, regCourse) => totalRegCredits + regCourse.credits,
@@ -51,7 +52,7 @@ let getAcademicRecord = async () => {
 
     // Calcular promedio general de los cursos inscritos
     generalAverage.value = (
-        responseData.registration
+        data.registration
             .map((reg) => {
                 let sumNotes = reg.Registration_course.reduce(
                     (sumNotes, regCourse) => sumNotes + regCourse.note,
@@ -60,12 +61,11 @@ let getAcademicRecord = async () => {
                 let regNote = sumNotes / reg.Registration_course.length
                 return regNote
             })
-            .reduce((sumRegNotes, regNote) => sumRegNotes + regNote, 0) /
-        responseData.registration.length
+            .reduce((sumRegNotes, regNote) => sumRegNotes + regNote, 0) / data.registration.length
     ).toFixed(2)
 
     // Calcular total de cursos aprobados
-    totalAprovedCourses.value = responseData.registration
+    aprovedCourses.value = data.registration
         .map(
             (reg) =>
                 reg.Registration_course.filter((regCourse) => regCourse.type == 'Aprobado').length
@@ -73,7 +73,7 @@ let getAcademicRecord = async () => {
         .reduce((total, course) => total + course)
 
     // Calcular total de créditos aprobados
-    totalAprovedCredits.value = responseData.registration
+    aprovedCredits.value = data.registration
         .map((reg) =>
             reg.Registration_course.filter((regCourse) => regCourse.type == 'Aprobado').reduce(
                 (totalRegCredits, regCourse) => totalRegCredits + regCourse.credits,
@@ -83,7 +83,7 @@ let getAcademicRecord = async () => {
         .reduce((total, regQtyCredits) => total + regQtyCredits, 0)
 
     // Calcular porcentaje de créditos aprobados
-    percentAprovedCredits.value = (totalAprovedCredits.value / totalCredits.value) * 100
+    // percentAprovedCredits.value = (aprovedCredits.value / totalCredits.value) * 100
 }
 getAcademicRecord()
 
@@ -117,10 +117,10 @@ let printRecord = {
                     <div class="mb-2 fw-bold text-random">{{ programName }}</div>
                     <div class="row">
                         <div class="col-12 mt-3" v-for="reg in registrationList" :key="reg.id">
-                            <span style="font-weight: bold; font-size: 0.8rem; margin-right: 35px"
+                            <span style="font-weight: bold; font-size: 0.8em; margin-right: 35px"
                                 >SEMESTRE</span
                             >
-                            <span style="font-size: 0.8rem">{{
+                            <span style="font-size: 0.8em">{{
                                 reg.Academic_semester.Academic_calendar.denomination +
                                 ' - ' +
                                 reg.Academic_semester.denomination
@@ -191,16 +191,16 @@ let printRecord = {
                                     <table>
                                         <tbody>
                                             <tr>
-                                                <td class="td-bold">TOTAL CURSOS APROBADOS</td>
+                                                <td class="td-bold">CURSOS APROBADOS</td>
                                                 <td class="td-bold px-2">:</td>
-                                                <td class="td-normal">{{ totalAprovedCourses }}</td>
+                                                <td class="td-normal">{{ aprovedCourses }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="td-bold">TOTAL CRÉDITOS APROBADOS</td>
+                                                <td class="td-bold">CRÉDITOS APROBADOS</td>
                                                 <td class="td-bold px-2">:</td>
-                                                <td class="td-normal">{{ totalAprovedCredits }}</td>
+                                                <td class="td-normal">{{ aprovedCredits }}</td>
                                             </tr>
-                                            <tr>
+                                            <!-- <tr>
                                                 <td class="td-bold">
                                                     PORCENTAJE CRÉDITOS APROBADOS
                                                 </td>
@@ -208,13 +208,13 @@ let printRecord = {
                                                 <td class="td-normal">
                                                     {{ percentAprovedCredits }}%
                                                 </td>
-                                            </tr>
+                                            </tr> -->
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
-                        <div class="row mt-3" style="font-size: 0.7rem">
+                        <div class="row mt-3" style="font-size: 0.7em">
                             <div class="col-auto">CL: Ciclo</div>
                             <div class="col-auto">CR: Créditos</div>
                             <div class="col">TC: Tipo Curso (O=Obligatorio; E=Electivo)</div>
@@ -292,10 +292,10 @@ let printRecord = {
 
                     <div class="row">
                         <div class="col-12 mt-3 p-0" v-for="reg in registrationList" :key="reg.id">
-                            <span style="font-weight: bold; font-size: 0.8rem; margin-right: 35px"
+                            <span style="font-weight: bold; font-size: 0.8em; margin-right: 35px"
                                 >SEMESTRE</span
                             >
-                            <span style="font-size: 0.8rem">{{
+                            <span style="font-size: 0.8em">{{
                                 reg.Academic_semester.Academic_calendar.denomination +
                                 ' - ' +
                                 reg.Academic_semester.denomination
@@ -366,20 +366,20 @@ let printRecord = {
                                 <table>
                                     <tbody>
                                         <tr>
-                                            <td class="td-bold">TOTAL CURSOS APROBADOS</td>
+                                            <td class="td-bold">CURSOS APROBADOS</td>
                                             <td class="td-bold px-2">:</td>
-                                            <td class="td-normal">{{ totalAprovedCourses }}</td>
+                                            <td class="td-normal">{{ aprovedCourses }}</td>
                                         </tr>
                                         <tr>
-                                            <td class="td-bold">TOTAL CRÉDITOS APROBADOS</td>
+                                            <td class="td-bold">CRÉDITOS APROBADOS</td>
                                             <td class="td-bold px-2">:</td>
-                                            <td class="td-normal">{{ totalAprovedCredits }}</td>
+                                            <td class="td-normal">{{ aprovedCredits }}</td>
                                         </tr>
-                                        <tr>
+                                        <!-- <tr>
                                             <td class="td-bold">PORCENTAJE CRÉDITOS APROBADOS</td>
                                             <td class="td-bold px-2">:</td>
                                             <td class="td-normal">{{ percentAprovedCredits }}%</td>
-                                        </tr>
+                                        </tr> -->
                                     </tbody>
                                 </table>
                             </div>
@@ -392,30 +392,33 @@ let printRecord = {
                         <div class="col">TC: Tipo Curso (O=Obligatorio; E=Electivo)</div>
                     </div>
                 </div>
-                <span class="watermark">NO VÁLIDO PARA TRÁMITE</span>
+                <span class="watermark">SOLO LECTURA</span>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-.print-page {
-    width: 21cm;
-    min-height: 29.7cm;
-    padding: 1cm;
-    font-family: Arial, Helvetica, sans-serif;
-    position: relative;
+@media print {
+    .print-page {
+        width: 21cm;
+        min-height: 29.7cm;
+        padding: 1cm;
+        font-family: Arial, Helvetica, sans-serif;
+        position: relative;
+    }
 }
 .watermark {
     color: rgba(0, 0, 0, 0.17);
-    font-size: 3.5rem;
-    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9em;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
-    position: absolute;
-    top: 47.5%;
-    transform: rotate(-45deg);
+    position: fixed;
+    left: -5%;
+    top: 26%;
+    transform: rotate(-55deg);
+    text-align: center;
 }
-
 .image-unsm,
 .image-fcs {
     background-position: center;
@@ -431,20 +434,20 @@ let printRecord = {
     background-image: url('../assets/logo-fcs.png');
 }
 .unsm-name {
-    font-size: 1.4rem;
+    font-size: 1.4em;
 }
 .fcs-name {
-    font-size: 1.15rem;
+    font-size: 1.15em;
 }
 .use-name {
-    font-size: 1.3rem;
+    font-size: 1.3em;
 }
 .print-title {
     display: flex;
     justify-content: center;
     border-bottom: 2px solid black;
     font-weight: bold;
-    font-size: 1.7rem;
+    font-size: 1.7em;
     color: black;
 }
 
@@ -453,19 +456,19 @@ table {
 }
 .td-bold {
     font-weight: bold;
-    font-size: 0.8rem;
+    font-size: 0.8em;
 }
 .td-normal {
-    font-size: 0.8rem;
+    font-size: 0.8em;
 }
 
 th,
 td {
-    font-size: 0.7rem;
+    font-size: 0.7em;
 }
 
 .legend {
-    font-size: 0.7rem;
+    font-size: 0.7em;
     /* font-weight: bold; */
 }
 .legend > div {

@@ -2,14 +2,14 @@
 import { ref } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
-import { usePersonData } from '../composables/person-data'
+import { usePerson } from '../composables/person'
 
 const router = useRouter()
 const url = import.meta.env.VITE_API_URL
 const token = JSON.parse(localStorage.getItem('use'))
 
 // COMPOSABLES
-const { personName } = usePersonData(url, token)
+const { personName } = usePerson(url, token)
 
 let menu = ref(false)
 let menuClose = ref(false)
@@ -43,8 +43,8 @@ let changePassword = async () => {
         }),
         body: JSON.stringify({ password: passNew.value })
     })
-    let responseData = await response.json()
-    if (responseData) {
+    let data = await response.json()
+    if (data) {
         modalPassword.value = false
         passNew.value = null
         passNewRepeat.value = null
@@ -87,9 +87,13 @@ let changePassword = async () => {
                                 <span class="align-self-center">{{ personName }}</span>
                             </span>
                             <ul>
+                                <li class="cursor-pt" @click="router.push('/welcome')">
+                                    Cambiar programa
+                                </li>
                                 <li class="cursor-pt" @click="modalPassword = true">
                                     Cambiar contraseña
                                 </li>
+
                                 <li class="cursor-pt" @click="closeSession">Salir</li>
                             </ul>
                             <!-- Boton de menu -->
@@ -223,7 +227,7 @@ let changePassword = async () => {
 .app-title {
     color: rgb(120, 120, 130);
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1.1em;
 }
 .opciones-cuenta {
     align-items: center;
@@ -289,19 +293,19 @@ let changePassword = async () => {
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial,
         sans-serif;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1.1em;
 }
 .menu-head {
     background-color: rgb(51, 51, 51);
     box-shadow: 0 -1px 1px rgb(100, 100, 100) inset;
     color: rgb(201, 201, 201);
-    font-size: 0.95rem;
+    font-size: 0.95em;
     min-height: 110px;
     position: relative;
 }
 .menu-head > .ddown {
     background-color: rgb(81, 81, 81);
-    border-radius: 0 0 0.25rem 0.25rem;
+    border-radius: 0 0 0.25em 0.25em;
     position: absolute;
     width: 100%;
 }
@@ -360,7 +364,7 @@ let changePassword = async () => {
 }
 .page-title {
     color: rgb(130, 130, 150);
-    font-size: 1.4rem;
+    font-size: 1.4em;
 }
 
 /* modal */
