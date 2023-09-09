@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 
@@ -47,6 +47,31 @@ let login = async () => {
     pass.value = ''
 }
 
+let isInstallable = ref(false)
+const deferredPrompt = ref(null)
+const handleBeforeInstallPrompt = (event) => {
+    event.preventDefault()
+    deferredPrompt.value = event
+    isInstallable.value = true
+}
+
+onMounted(() => {
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+})
+
+const installApp = () => {
+    if (deferredPrompt.value) {
+        deferredPrompt.value.prompt()
+        deferredPrompt.value.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the A2HS prompt')
+            } else {
+                console.log('User dismissed the A2HS prompt')
+            }
+            deferredPrompt.value = null
+        })
+    }
+}
 </script>
 
 <template>
@@ -80,11 +105,21 @@ let login = async () => {
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="label-user">Usuario</label>
-                            <input type="text" id="label-user" class="form-control" v-model="user" />
+                            <input
+                                type="text"
+                                id="label-user"
+                                class="form-control"
+                                v-model="user"
+                            />
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="label-pass">Contraseña</label>
-                            <input type="password" id="label-pass" class="form-control" v-model="pass" />
+                            <input
+                                type="password"
+                                id="label-pass"
+                                class="form-control"
+                                v-model="pass"
+                            />
                         </div>
                         <button type="button" class="btn btn-login w-100" @click="login">
                             INGRESAR
@@ -96,19 +131,24 @@ let login = async () => {
                 </div>
             </div>
         </div>
+
+        <div class="row prompt-install" v-if="isInstallable">
+            <div class="col p-2">
+                <img src="/pwa-icons/android-chrome-192x192.png" alt="" width="48" height="48" />
+                <span class="ms-3 py-2" @click="installApp">
+                    <span style="user-select: none;">INSTALAR COMO APLICACIÓN</span>
+                </span>
+            </div>
+            <div class="col-auto d-flex align-items-center px-3" @click="isInstallable = false">
+                <span class="fa-solid fa-xmark"></span>
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
 .back-login {
-    /* CON IMAGEN */
-    /* background-image: url('../assets/bg-login.jpg');
-    background-repeat: no-repeat;
-    background-size: cover; */
-
-    /* SIN IMAGEN */
     background-color: #802434;
-
     color: white;
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     font-weight: bold;
@@ -162,6 +202,15 @@ input:focus {
 }
 .show-images {
     display: none !important;
+}
+
+.prompt-install {
+    color: #802434;
+    background-color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -3px 3px rgba(15, 15, 15, 0.342);
 }
 @media only screen and (min-width: 576px) {
     .unsm-name {
