@@ -14,7 +14,7 @@ function usePerson(url, token) {
             .then((response) => response.json())
             .then((data) => {
                 person.value = data
-                personName.value = data.name + ' ' + data.paternal + ' ' + data.maternal
+                personName.value = data.paternal + ' ' + data.maternal + ' ' + data.name
                 personDocument.value = data.document_number
             })
     })

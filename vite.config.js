@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    base: '/intranet-test/',
+    base: '/intranet/',
     plugins: [
         vue(),
         VitePWA({
@@ -41,6 +41,6 @@ export default defineConfig({
         }
     },
     build: {
-        outDir: 'intranet-test'
+        outDir: 'intranet'
     }
 })

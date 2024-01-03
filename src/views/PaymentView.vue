@@ -1,8 +1,13 @@
 <script setup>
 import { ref } from 'vue'
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
 import { usePerson } from '../composables/person'
 import { useProgram } from '../composables/program'
 import { useCurrentDate } from '../composables/current-date'
+
+import logoUnsm from '../assets/logo-unsm.png'
+import logoFcs from '../assets/logo-fcs.png'
 
 const url = import.meta.env.VITE_API_URL
 const token = JSON.parse(localStorage.getItem('use'))
@@ -15,6 +20,7 @@ const { currentDate } = useCurrentDate()
 
 // PAGOS----------------------------------------------
 let paymentsList = ref([])
+let paymentsListPdf = ref([])
 let totalPaymentsPayed = ref(0)
 let totalPaymentsPendant = ref(0)
 let getPayments = async () => {
@@ -26,6 +32,13 @@ let getPayments = async () => {
     })
     let data = await response.json()
     paymentsList.value = data
+    paymentsListPdf.value = data.map((item, k) => [
+        k + 1,
+        item.concept,
+        item.amount,
+        item.process,
+        item.type
+    ])
     totalPaymentsPayed.value = data
         .filter((e) => e.type === 'Pagado')
         .reduce((total, item) => total + Number(item.amount), 0)
@@ -35,6 +48,7 @@ let getPayments = async () => {
         .reduce((total, item) => total + Number(item.amount), 0)
 }
 getPayments()
+
 // Configuración de la tabla pagos
 const paymentSearchField = ['concept', 'amount', 'process', 'type']
 const paymentSearchValue = ref('')
@@ -44,13 +58,125 @@ const paymentsHeaders = ref([
     { text: 'PERIODO', value: 'process' },
     { text: 'ESTADO', value: 'type' }
 ])
-// Impresión de la tabla pagos
-let printPaymentsOpen = ref(false)
-let printPayments = {
-    id: 'to-print-payments',
-    openCallback() {
-        printPaymentsOpen.value = false
+
+// Descarga del reporte de pagos
+let universityName = 'Universidad Nacional de San Martín'
+let facultyName = 'Facultad de Ciencias de la Salud'
+let unityName = 'Unidad de Segunda Especialidad'
+
+const imgUnsm = logoUnsm
+const imgFcs = logoFcs
+
+let downloadPayments = (data) => {
+    const pdf = new jsPDF()
+    let pageWidth = pdf.internal.pageSize.getWidth()
+    pdf.addImage(imgUnsm, 'PNG', 10, 10, 24, 24)
+    pdf.setFontSize(16)
+    pdf.setFont('helvetica', 'normal')
+    pdf.text(universityName.toUpperCase(), pageWidth / 2, 16, 'center')
+    pdf.setFontSize(13)
+    pdf.setFont('helvetica', 'normal')
+    pdf.text(facultyName.toUpperCase(), pageWidth / 2, 23, 'center')
+    pdf.setFontSize(15)
+    pdf.setFont('helvetica', 'normal')
+    pdf.text(unityName.toUpperCase(), pageWidth / 2, 31, 'center')
+    pdf.addImage(imgFcs, 'PNG', 175, 10, 24, 24)
+    const pageCount = pdf.internal.getNumberOfPages()
+
+    pdf.setFontSize(19)
+    pdf.setFont('helvetica', 'bold')
+    pdf.text('REPORTE DE CONCEPTOS DE PAGO', pageWidth / 2, 42, 'center')
+    pdf.setLineWidth(0.3)
+    pdf.line(10, 44, 200, 44)
+
+    pdf.setFontSize(10)
+    pdf.setFont('helvetica', 'bold')
+    pdf.text('PROGRAMA', 10, 51)
+    pdf.text(':', 34, 51)
+    pdf.setFont('helvetica', 'normal')
+    let splitProgram = pdf.splitTextToSize(data.programName.toUpperCase(), 162)
+    pdf.text(splitProgram, 37, 51)
+
+    pdf.setFont('helvetica', 'bold')
+    pdf.text('ESTUDIANTE', 10, 61)
+    pdf.text(':', 34, 61)
+    pdf.setFont('helvetica', 'normal')
+    pdf.text(data.personName.toUpperCase(), 37, 61)
+
+    pdf.setFont('helvetica', 'bold')
+    pdf.text('CÓDIGO/DNI', 10, 66)
+    pdf.text(':', 34, 66)
+    pdf.setFont('helvetica', 'normal')
+    pdf.text(data.personDocument, 37, 66)
+
+    // Table
+    pdf.setFont('helvetica', 'bold')
+    pdf.setFontSize(10)
+    pdf.text('PAGADO', 10, 76)
+    pdf.text(':', 28, 76)
+    pdf.setFont('helvetica', 'normal')
+    pdf.text('S/ ' + data.totalPaymentsPayed, 31, 76)
+
+    pdf.setFont('helvetica', 'bold')
+    pdf.text('PENDIENTE', 80, 76)
+    pdf.text(':', 102, 76)
+    pdf.setFont('helvetica', 'normal')
+    pdf.text('S/ ' + data.totalPaymentsPendant, 105, 76)
+
+    pdf.setFont('helvetica', 'bold')
+    pdf.text('FECHA', 164, 76)
+    pdf.text(':', 178, 76)
+    pdf.setFont('helvetica', 'normal')
+    pdf.text(data.currentDate, 181, 76)
+
+    pdf.setTextColor(222, 222, 222)
+    pdf.setFont('helvetica', 'bold')
+    pdf.setFontSize(100)
+    pdf.text('SOLO', 60, 160, { angle: 45 })
+    pdf.text('LECTURA', 60, 200, { angle: 45 })
+
+    let initial_autotable = 79
+    pdf.autoTable({
+        margin: [28, 10],
+        theme: 'plain',
+        didDrawCell: function (cel) {
+            pdf.rect(cel.cell.x, cel.cell.y, cel.cell.width, cel.cell.height)
+        },
+        styles: {
+            fontSize: 7,
+            font: 'helvetica',
+            fontStyle: 'normal'
+        },
+        headStyles: {
+            font: 'helvetica',
+            fontStyle: 'bold',
+            fillColor: '#000000',
+            textColor: '#ffffff'
+        },
+        columnStyles: {
+            0: { cellWidth: 8 },
+            1: { cellWidth: 132 },
+            2: { cellWidth: 18 },
+            3: { cellWidth: 16 },
+            4: { cellWidth: 16 }
+        },
+        startY: initial_autotable,
+        columns: ['#', 'CONCEPTO', 'MONTO', 'PERIODO', 'ESTADO'],
+        body: data.paymentsListPdf
+    })
+    initial_autotable = pdf.lastAutoTable.finalY + 5
+
+    pdf.setTextColor(0, 0, 0)
+    pdf.setFont('helvetica', 'normal')
+    pdf.setFontSize(8)
+    for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i)
+        pdf.text('Pag ' + String(i) + ' de ' + String(pageCount), 197, 287, {
+            align: 'right'
+        })
     }
+
+    pdf.save('REPORTE DE PAGOS - ' + Date() + '.pdf')
 }
 </script>
 
@@ -67,11 +193,20 @@ let printPayments = {
                     <span class="h6">CONCEPTOS DE PAGO</span>
                     <span
                         class="cursor-pt"
-                        v-print="printPayments"
-                        @click="printPaymentsOpen = true"
+                        @click="
+                            downloadPayments({
+                                programName: programName,
+                                personName: personName,
+                                personDocument: personDocument,
+                                paymentsListPdf: paymentsListPdf,
+                                totalPaymentsPayed: String(totalPaymentsPayed),
+                                totalPaymentsPendant: String(totalPaymentsPendant),
+                                currentDate: currentDate
+                            })
+                        "
                     >
                         <span class="fa-solid fa-print"></span>
-                        IMPRIMIR
+                        DESCARGAR
                     </span>
                 </div>
                 <div class="card-body">
@@ -102,164 +237,4 @@ let printPayments = {
             </div>
         </div>
     </div>
-
-    <!-- PAGINA DE IMPRESIÓN DE CONCEPTOS -->
-    <div class="row" v-if="printPaymentsOpen">
-        <div class="col mb-3">
-            <div class="print-page" id="to-print-payments">
-                <div class="content-page container-fluid">
-                    <div class="row">
-                        <div class="col-auto px-0">
-                            <div class="image-unsm"></div>
-                        </div>
-                        <div class="col px-0">
-                            <div class="d-flex justify-content-center unsm-name">
-                                UNIVERSIDAD NACIONAL DE SAN MARTÍN
-                            </div>
-                            <div class="d-flex justify-content-center fcs-name">
-                                FACULTAD DE CIENCIAS DE LA SALUD
-                            </div>
-                            <div class="d-flex justify-content-center use-name">
-                                UNIDAD DE SEGUNDA ESPECIALIDAD
-                            </div>
-                        </div>
-                        <div class="col-auto px-0">
-                            <div class="image-fcs"></div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col pt-2 pb-0 print-title">CONCEPTOS DE PAGO</div>
-                    </div>
-                    <div class="row">
-                        <div class="col px-0">
-                            <div class="mt-3">
-                                <table>
-                                    <tbody>
-                                        <tr>
-                                            <td class="td-bold">PROGRAMA</td>
-                                            <td class="td-bold px-2">:</td>
-                                            <td class="td-normal">{{ programName }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="td-bold">ESTUDIANTE</td>
-                                            <td class="td-bold px-2">:</td>
-                                            <td class="td-normal">{{ personName }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="td-bold">CÓD/DNI</td>
-                                            <td class="td-bold px-2">:</td>
-                                            <td class="td-normal">{{ personDocument }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col d-flex justify-content-between mt-3 px-0">
-                            <span>T. Pagado: S/ {{ totalPaymentsPayed }}</span>
-                            <span>T. Pendiente: S/ {{ totalPaymentsPendant }}</span>
-                            <span>Fecha: {{ currentDate }}</span>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col mt-1 p-0">
-                            <table class="table table-sm table-bordered">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>CONCEPTO</th>
-                                        <th>MONTO</th>
-                                        <th>PERIODO</th>
-                                        <th>ESTADO</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(pay, i) in paymentsList" :key="pay.id">
-                                        <td>{{ i + 1 }}</td>
-                                        <td>{{ pay.concept }}</td>
-                                        <td>{{ pay.amount }}</td>
-                                        <td>{{ pay.process }}</td>
-                                        <td :class="{ 'text-danger': pay.type == 'Pendiente' }">
-                                            {{ pay.type }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <span class="watermark">SOLO LECTURA</span>
-            </div>
-        </div>
-    </div>
 </template>
-
-<style scoped>
-@media print {
-    .print-page {
-        width: 21cm;
-        min-height: 29.7cm;
-        padding: 1cm;
-        font-family: Arial, Helvetica, sans-serif;
-        position: relative;
-    }
-}
-.watermark {
-    color: rgba(0, 0, 0, 0.17);
-    font-size: 9em;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-weight: bold;
-    position: fixed;
-    left: -5%;
-    top: 26%;
-    transform: rotate(-55deg);
-    text-align: center;
-}
-.image-unsm,
-.image-fcs {
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    height: 110px;
-    width: 110px;
-}
-
-.image-unsm {
-    background-image: url('../assets/logo-unsm.png');
-}
-.image-fcs {
-    background-image: url('../assets/logo-fcs.png');
-}
-.unsm-name {
-    font-size: 1.4em;
-}
-.fcs-name {
-    font-size: 1.15em;
-}
-.use-name {
-    font-size: 1.3em;
-}
-.print-title {
-    display: flex;
-    justify-content: center;
-    border-bottom: 2px solid black;
-    font-weight: bold;
-    font-size: 1.7em;
-    color: black;
-}
-table {
-    white-space: normal !important;
-}
-.td-bold {
-    font-weight: bold;
-    font-size: 0.8em;
-}
-.td-normal {
-    font-size: 0.8em;
-}
-th,
-td {
-    font-size: 0.7em;
-}
-</style>

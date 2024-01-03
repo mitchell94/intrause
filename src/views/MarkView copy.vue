@@ -1,12 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import jsPDF from 'jspdf'
-import 'jspdf-autotable'
 import { usePerson } from '../composables/person'
 import { useProgram } from '../composables/program'
-
-import logoUnsm from '../assets/logo-unsm.png'
-import logoFcs from '../assets/logo-fcs.png'
 
 const url = import.meta.env.VITE_API_URL
 const token = JSON.parse(localStorage.getItem('use'))
@@ -17,7 +12,7 @@ const { personName, personDocument } = usePerson(url, token)
 const { programName } = useProgram(url, token, student)
 
 // RECORD ACADEMICO --------------------------------------
-let unityFullName = ref('')
+let unityName = ref('')
 let sedeName = ref('')
 let registrationList = ref([])
 let totalCourses = ref(0)
@@ -36,7 +31,7 @@ let getAcademicRecord = async () => {
     let data = await response.json()
 
     // Datos generales de texto
-    unityFullName.value = data.principalOrganicUnit.description.toUpperCase()
+    unityName.value = data.principalOrganicUnit.description.toUpperCase()
     sedeName.value = data.studentData.Program.Organic_unit_register.Campu.denomination.toUpperCase()
     registrationList.value = data.registration
 
@@ -92,317 +87,13 @@ let getAcademicRecord = async () => {
 }
 getAcademicRecord()
 
-// Descarga del reporte de notas
-let universityName = 'Universidad Nacional de San Martín'
-let facultyName = 'Facultad de Ciencias de la Salud'
-let unityName = 'Unidad de Segunda Especialidad'
-
-const imgUnsm = logoUnsm
-const imgFcs = logoFcs
-
-const numberToLetter = (num) => {
-    let number
-    switch (num) {
-        case 0:
-            number = 'CERO'
-            break
-        case 1:
-            number = 'UNO'
-            break
-        case 2:
-            number = 'DOS'
-            break
-        case 3:
-            number = 'TRES'
-            break
-        case 4:
-            number = 'CUATRO'
-            break
-        case 5:
-            number = 'CINCO'
-            break
-        case 6:
-            number = 'SEIS'
-            break
-        case 7:
-            number = 'SIETE'
-            break
-        case 8:
-            number = 'OCHO'
-            break
-        case 9:
-            number = 'NUEVE'
-            break
-        case 10:
-            number = 'DIEZ'
-            break
-        case 11:
-            number = 'ONCE'
-            break
-        case 12:
-            number = 'DOCE'
-            break
-        case 13:
-            number = 'TRECE'
-            break
-        case 14:
-            number = 'CATORCE'
-            break
-        case 15:
-            number = 'QUINCE'
-            break
-        case 16:
-            number = 'DIECISÉIS'
-            break
-        case 17:
-            number = 'DIECISIETE'
-            break
-        case 18:
-            number = 'DIECIOCHO'
-            break
-        case 19:
-            number = 'DIECINUEVE'
-            break
-        case 20:
-            number = 'VEINTE'
-            break
+// // Impresión de la tabla record
+let printRecordOpen = ref(false)
+let printRecord = {
+    id: 'to-print-record',
+    openCallback() {
+        printRecordOpen.value = false
     }
-    return number
-}
-
-let downloadAcademicRecord = (data) => {
-    let pagesGenerate = Math.ceil(data.registrationList.length / 3)
-
-    function splitArray(arr, cantSubArray) {
-        let result = []
-        for (let i = 0; i < arr.length; i += cantSubArray) {
-            result.push(arr.slice(i, i + cantSubArray))
-        }
-        return result
-    }
-
-    let arrayParts = splitArray(data.registrationList, 3)
-
-    const pdf = new jsPDF()
-    let pageWidth = pdf.internal.pageSize.getWidth()
-
-    let totalAprovedCourse = 0
-    let totalAprovedCredit = 0
-    let aprovedPromedi = 0
-    let totalCourse = 0
-    let totalCredit = 0
-    let generalPromedi = 0
-
-    let academicSemester = '-'
-
-    const addHeader = () => {
-        pdf.addImage(imgUnsm, 'PNG', 10, 10, 24, 24)
-        pdf.setFontSize(16)
-        pdf.setFont('helvetica', 'normal')
-        pdf.text(universityName.toUpperCase(), pageWidth / 2, 16, 'center')
-        pdf.setFontSize(13)
-        pdf.setFont('helvetica', 'normal')
-        pdf.text(facultyName.toUpperCase(), pageWidth / 2, 23, 'center')
-        pdf.setFontSize(15)
-        pdf.setFont('helvetica', 'normal')
-        pdf.text(unityName.toUpperCase(), pageWidth / 2, 31, 'center')
-        pdf.addImage(imgFcs, 'PNG', 175, 10, 24, 24)
-
-        pdf.setFontSize(19)
-        pdf.setFont('helvetica', 'bold')
-        pdf.text('RÉCORD ACADÉMICO', pageWidth / 2, 42, 'center')
-        pdf.setLineWidth(0.3)
-        pdf.line(10, 44, 200, 44)
-
-        pdf.setFontSize(10)
-        pdf.setFont('helvetica', 'bold')
-        pdf.text('PROGRAMA', 10, 51)
-        pdf.text(':', 34, 51)
-        pdf.setFont('helvetica', 'normal')
-        let splitProgram = pdf.splitTextToSize(data.programName.toUpperCase(), 162)
-        pdf.text(splitProgram, 37, 51)
-
-        pdf.setFont('helvetica', 'bold')
-        pdf.text('UNIDAD', 10, 61)
-        pdf.text(':', 34, 61)
-        pdf.setFont('helvetica', 'normal')
-        pdf.text(data.unityFullName.toUpperCase(), 37, 61)
-
-        pdf.setFont('helvetica', 'bold')
-        pdf.text('SEDE', 118, 61)
-        pdf.text(':', 129, 61)
-        pdf.setFont('helvetica', 'normal')
-        pdf.text(data.sedeName, 132, 61)
-
-        pdf.setFont('helvetica', 'bold')
-        pdf.text('ESTUDIANTE', 10, 66)
-        pdf.text(':', 34, 66)
-        pdf.setFont('helvetica', 'normal')
-        pdf.text(data.personName, 37, 66)
-
-        pdf.setFont('helvetica', 'bold')
-        pdf.text('CÓDIGO/DNI', 10, 71)
-        pdf.text(':', 34, 71)
-        pdf.setFont('helvetica', 'normal')
-        pdf.text(data.personDocument, 37, 71)
-    }
-
-    const addContent = (part, initialTableY) => {
-        part.forEach((reg) => {
-            let tempBody = []
-            reg.Registration_course.forEach((regCourse) => {
-                let typeCourse = regCourse.type_course === 'Obligatorio' ? 'O' : 'E'
-                totalCourse = totalCourse + 1
-                totalCredit = totalCredit + regCourse.credits
-                generalPromedi = generalPromedi + regCourse.note
-                totalAprovedCourse =
-                    regCourse.note >= 14 ? totalAprovedCourse + 1 : totalAprovedCourse
-                aprovedPromedi =
-                    regCourse.note >= 14 ? aprovedPromedi + regCourse.note : aprovedPromedi
-                totalAprovedCredit =
-                    regCourse.note >= 14
-                        ? totalAprovedCredit + regCourse.credits
-                        : totalAprovedCredit
-                let noteText = numberToLetter(parseInt(regCourse.note))
-                tempBody.push([
-                    regCourse.code,
-                    regCourse.denomination,
-                    regCourse.ciclo,
-                    'NN',
-                    '',
-                    typeCourse,
-                    regCourse.credits,
-                    regCourse.note,
-                    noteText
-                ])
-            })
-
-            pdf.setFont('helvetica', 'bold')
-            pdf.setTextColor(0, 0, 0)
-            pdf.setFontSize(10)
-            pdf.text('SEMESTRE', 10, initialTableY - 2)
-            academicSemester = reg.Academic_semester.denomination
-
-            pdf.text(
-                reg.Academic_semester.Academic_calendar.denomination + ' - ' + academicSemester,
-                37,
-                initialTableY - 2
-            )
-
-            pdf.autoTable({
-                margin: [20, 10],
-                theme: 'plain',
-                didDrawCell: function (cel) {
-                    pdf.rect(cel.cell.x, cel.cell.y, cel.cell.width, cel.cell.height)
-                },
-                startY: initialTableY,
-                styles: { fontSize: 7, font: 'helvetica', fontStyle: 'normal', cellPadding: 1.3 },
-                headStyles: {
-                    font: 'helvetica',
-                    fontStyle: 'bold',
-                    fillColor: '#000',
-                    textColor: '#ffffff'
-                },
-                head: [
-                    [
-                        'CÓDIGO',
-                        'ASIGNATURA',
-                        { content: 'CL', styles: { halign: 'center' } },
-                        { content: 'CV', styles: { halign: 'center' } },
-                        { content: 'TN', styles: { halign: 'center' } },
-                        { content: 'TC', styles: { halign: 'center' } },
-                        { content: 'CR', styles: { halign: 'center' } },
-                        'NOTA',
-                        'LETRA'
-                    ]
-                ],
-                columnStyles: {
-                    0: { cellWidth: 23 },
-                    // 1: { cellWidth: 111 },
-                    2: { cellWidth: 7, halign: 'center' },
-                    3: { cellWidth: 7, halign: 'center' },
-                    4: { cellWidth: 7, halign: 'center' },
-                    5: { cellWidth: 7, halign: 'center' },
-                    6: { cellWidth: 7, halign: 'center' },
-                    7: { cellWidth: 11, halign: 'center' },
-                    8: { cellWidth: 20 }
-                },
-                body: tempBody
-            })
-            initialTableY = pdf.lastAutoTable.finalY + 8
-        })
-    }
-
-    const addFooter = () => {
-        pdf.setFont('helvetica', 'normal')
-        pdf.setFontSize(9)
-
-        pdf.text('TOTAL CURSOS', 10, 258)
-        pdf.text(':', 50, 258)
-        pdf.text(String(totalCourse), 52, 258)
-
-        pdf.text('TOTAL CRÉDITOS', 10, 263)
-        pdf.text(':', 50, 263)
-        pdf.text(String(totalCredit), 52, 263)
-
-        pdf.text('PROMEDIO GENERAL', 10, 268)
-        pdf.text(':', 50, 268)
-        pdf.text(String(Math.round((generalPromedi / totalCourse) * 100) / 100), 52, 268)
-
-        pdf.text('TOTAL DE CURSOS APROBADOS', 120, 258)
-        pdf.text(':', 183, 258)
-        pdf.text(String(totalAprovedCourse), 185, 258)
-
-        pdf.text('TOTAL DE CRÉDITOS APROBADOS', 120, 263)
-        pdf.text(':', 183, 263)
-        pdf.text(String(totalAprovedCredit), 185, 263)
-
-        // pdf.text('PROMEDIO CR. APROBADOS', 120, 268)
-        // pdf.text(':', 183, 268)
-        // pdf.text(
-        //     String(
-        //         totalAprovedCourse !== 0
-        //             ? Math.round((aprovedPromedi / totalAprovedCourse) * 100) / 100
-        //             : 0
-        //     ),
-        //     185,
-        //     268
-        // )
-        pdf.setFontSize(8)
-        pdf.setFont('helvetica', 'normal')
-        pdf.text('CL: Ciclo', 10, 275)
-        pdf.text('CV: Curso Convalidado(C)', 30, 275)
-        pdf.text('TN: Tipo de nota', 70, 275)
-        pdf.text('TC: Tipo de curso(O=Obligatorio, E=Electivo)', 100, 275)
-        pdf.text('CR: Créditos', 163, 275)
-    }
-
-    const addWaterMark = () => {
-        pdf.setTextColor(222, 222, 222)
-        pdf.setFont('helvetica', 'bold')
-        pdf.setFontSize(100)
-        pdf.text('SOLO', 60, 160, { angle: 45 })
-        pdf.text('LECTURA', 60, 200, { angle: 45 })
-    }
-
-    for (let index = 0; index < pagesGenerate; index++) {
-        if (index > 0) {
-            pdf.addPage()
-        }
-        addHeader()
-        addWaterMark()
-        addContent(arrayParts[index], 82)
-        addFooter()
-
-        pdf.setTextColor(0, 0, 0)
-        pdf.setFont('helvetica', 'normal')
-        pdf.setFontSize(8)
-        pdf.text('Pag ' + String(index + 1) + ' de ' + String(pagesGenerate), 197, 287, {
-            align: 'right'
-        })
-    }
-
-    pdf.save('RÉCORD-ACADÉMICO-' + data.personDocument + '.pdf')
 }
 </script>
 
@@ -416,25 +107,10 @@ let downloadAcademicRecord = (data) => {
         <div class="col mt-3 mb-3">
             <div class="card shadow-sm top-random">
                 <div class="card-header d-flex justify-content-between text-random">
-                    <span class="h6">RÉCORD ACADÉMICO</span>
-                    <span
-                        class="cursor-pt"
-                        @click="
-                            downloadAcademicRecord({
-                                programName: programName,
-                                unityFullName: unityName,
-                                sedeName: sedeName,
-                                personName: personName,
-                                personDocument: personDocument,
-                                registrationList: registrationList
-                                // totalPaymentsPayed: String(totalPaymentsPayed),
-                                // totalPaymentsPendant: String(totalPaymentsPendant),
-                                // currentDate: currentDate
-                            })
-                        "
-                    >
+                    <span class="h6">RECORD ACADÉMICO</span>
+                    <span class="cursor-pt" v-print="printRecord" @click="printRecordOpen = true">
                         <span class="fa-solid fa-print"></span>
-                        DESCARGAR
+                        IMPRIMIR
                     </span>
                 </div>
                 <div class="card-body">
@@ -550,7 +226,7 @@ let downloadAcademicRecord = (data) => {
     </div>
 
     <!-- PAGINA DE IMPRESIÓN DE RECORD -->
-    <!-- <div class="row" v-if="printRecordOpen">
+    <div class="row" v-if="printRecordOpen">
         <div class="col mb-3">
             <div class="print-page" id="to-print-record">
                 <div class="content-page container-fluid">
@@ -699,11 +375,11 @@ let downloadAcademicRecord = (data) => {
                                             <td class="td-bold px-2">:</td>
                                             <td class="td-normal">{{ aprovedCredits }}</td>
                                         </tr>
-                                        <tr>
+                                        <!-- <tr>
                                             <td class="td-bold">PORCENTAJE CRÉDITOS APROBADOS</td>
                                             <td class="td-bold px-2">:</td>
                                             <td class="td-normal">{{ percentAprovedCredits }}%</td>
-                                        </tr> 
+                                        </tr> -->
                                     </tbody>
                                 </table>
                             </div>
@@ -719,7 +395,7 @@ let downloadAcademicRecord = (data) => {
                 <span class="watermark">SOLO LECTURA</span>
             </div>
         </div>
-    </div> -->
+    </div>
 </template>
 
 <style scoped>
