@@ -109,7 +109,14 @@ let downloadPayments = (data) => {
     pdf.setFont('helvetica', 'normal')
     pdf.text(data.personDocument, 37, 66)
 
-    // Table
+    pdf.setTextColor(222, 222, 222)
+    pdf.setFont('helvetica', 'bold')
+    pdf.setFontSize(100)
+    pdf.text('SOLO', 60, 160, { angle: 45 })
+    pdf.text('LECTURA', 60, 200, { angle: 45 })
+
+    // TABLA
+    pdf.setTextColor(0, 0, 0)
     pdf.setFont('helvetica', 'bold')
     pdf.setFontSize(10)
     pdf.text('PAGADO', 10, 76)
@@ -128,12 +135,6 @@ let downloadPayments = (data) => {
     pdf.text(':', 178, 76)
     pdf.setFont('helvetica', 'normal')
     pdf.text(data.currentDate, 181, 76)
-
-    pdf.setTextColor(222, 222, 222)
-    pdf.setFont('helvetica', 'bold')
-    pdf.setFontSize(100)
-    pdf.text('SOLO', 60, 160, { angle: 45 })
-    pdf.text('LECTURA', 60, 200, { angle: 45 })
 
     let initial_autotable = 79
     pdf.autoTable({
