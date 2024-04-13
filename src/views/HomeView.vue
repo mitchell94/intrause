@@ -137,6 +137,16 @@ let changePassword = async () => {
                             <span class="pe-7s-cash fa-fw fa-2x"></span>Pagos
                         </RouterLink>
                     </li>
+                    <li class="mb-1">
+                        <RouterLink to="/documents">
+                            <span class="pe-7s-file fa-fw fa-2x"></span>Documentos
+                        </RouterLink>
+                    </li>
+                    <li class="mb-1">
+                        <a href="https://usefcs.unsm.edu.pe/aulavirtual/login/" target="_blank">
+                            <span class="pe-7s-browser fa-fw fa-2x"></span>Aula virtual
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>

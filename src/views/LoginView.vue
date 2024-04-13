@@ -10,7 +10,7 @@ let user = ref('')
 let pass = ref('')
 let login = async () => {
     try {
-        let response = await fetch(url + '/intranet/login', {
+        let response = await fetch(`${url}/intranet/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -75,186 +75,182 @@ const installApp = () => {
 </script>
 
 <template>
-    <div class="container-fluid back-login">
-        <div class="row justify-content-center">
-            <div class="col-md-2 col-lg-2 mt-3 d-flex justify-content-end show-images">
-                <img src="../assets/logo-unsm.png" class="img-fluid logo-unsm" alt="" />
-            </div>
-            <div class="col-12 col-md-8 col-lg-7 col-xl-6 mt-3">
-                <div class="mb-1 d-flex justify-content-center">
-                    <span class="unsm-name text-center">UNIVERSIDAD NACIONAL DE SAN MARTÍN</span>
-                </div>
-                <div class="mb-1 d-flex justify-content-center">
-                    <span class="fcs-name text-center">FACULTAD DE CIENCIAS DE LA SALUD</span>
-                </div>
-                <div class="mb-1 d-flex justify-content-center">
-                    <span class="use-name text-center">UNIDAD DE SEGUNDA ESPECIALIDAD</span>
+    <div class="bg-login">
+        <div class="bg-img">
+            <div class="bg-name">
+                <div>
+                    <span>UNIDAD DE</span><br />
+                    <span>SEGUNDA</span><br />
+                    <span>ESPECIALIDAD</span><br />
+                    <span>FCS</span>
                 </div>
             </div>
-            <div class="col-md-2 col-lg-2 mt-3 d-flex justify-content-start show-images">
-                <img src="../assets/logo-fcs.png" class="img-fluid logo-fcs" alt="" />
-            </div>
+            <img src="../assets/mujer-emb.webp" alt="" />
         </div>
-
-        <div class="row justify-content-center">
-            <div class="col-12 col-sm-8 col-md-5 col-lg-3 px-4 px-md-0 mt-5">
-                <div class="card mb-3 bg-transparent">
-                    <div class="card-body">
-                        <div class="mb-3 d-flex justify-content-center">
-                            <span style="font-size: 1.7em">INTRANET</span>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="label-user">Usuario</label>
-                            <input
-                                type="text"
-                                id="label-user"
-                                class="form-control"
-                                v-model="user"
-                            />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="label-pass">Contraseña</label>
-                            <input
-                                type="password"
-                                id="label-pass"
-                                class="form-control"
-                                v-model="pass"
-                            />
-                        </div>
-                        <button type="button" class="btn btn-login w-100" @click="login">
-                            INGRESAR
-                        </button>
-                        <!-- <div class="mt-4 fw-normal d-flex justify-content-end reset-password">
-                            Olvidé mi contraseña
-                        </div> -->
-                    </div>
+        <div class="bg-form">
+            <div class="form-container">
+                <div class="mb-4 d-flex justify-content-center">
+                    <img src="../assets/logo-fcs.webp" alt="logo-fcs" width="140" />
                 </div>
+                <div class="mb-4">
+                    <span class="me-2">Iniciar</span>
+                    <span>Sesión</span>
+                </div>
+                <div class="mb-4">
+                    <input
+                        type="text"
+                        id="label-user"
+                        class="form-control"
+                        placeholder="Usuario"
+                        v-model="user"
+                    />
+                </div>
+                <div class="mb-4">
+                    <input
+                        type="password"
+                        id="label-pass"
+                        class="form-control"
+                        placeholder="Contraseña"
+                        v-model="pass"
+                    />
+                </div>
+                <button type="button" class="btn btn-login w-100" @click="login">INGRESAR</button>
             </div>
-        </div>
-
-        <div class="row prompt-install" v-if="isInstallable">
-            <div class="col p-2">
-                <img src="/pwa-icons/android-chrome-192x192.png" alt="" width="48" height="48" />
-                <span class="ms-3 py-2" @click="installApp">
-                    <span style="user-select: none;">INSTALAR COMO APLICACIÓN</span>
-                </span>
-            </div>
-            <div class="col-auto d-flex align-items-center px-3" @click="isInstallable = false">
-                <span class="fa-solid fa-xmark"></span>
+            <div class="prompt-install" v-if="isInstallable">
+                <div class="col p-2">
+                    <img
+                        src="/pwa-icons/android-chrome-192x192.png"
+                        alt=""
+                        width="48"
+                        height="48"
+                    />
+                    <span class="ms-3 py-2" @click="installApp">
+                        <span style="user-select: none">INSTALAR COMO APP</span>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-.back-login {
+.bg-login {
     background-color: #802434;
-    color: white;
-    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-    font-weight: bold;
-    width: 100%;
+    display: flex;
+    height: 100%;
     min-height: 100%;
+    width: 100%;
 }
-.bg-transparent {
-    /* background-color: rgba(255, 255, 255, 0.2) !important; */
-    border: none;
-    box-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
-    color: white;
 
-    background-image: url('../assets/bg-login.png');
-    background-repeat: no-repeat;
-    background-size: cover;
+.bg-img {
+    display: none;
 }
+
+.bg-form {
+    align-items: center;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    min-height: 100%;
+    width: 100%;
+}
+
+.form-container {
+    padding: 40px;
+    width: 100%;
+}
+
+.form-container > div:nth-child(2) {
+    display: flex;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial,
+        sans-serif;
+    font-size: 1.7em;
+    font-weight: bold;
+    justify-content: center;
+}
+
+.form-container > div:nth-child(2) span:nth-child(2) {
+    color: #802434;
+}
+
 input,
 input:focus {
-    background-color: rgba(128, 36, 51, 0.4) !important;
-    color: white !important;
+    border: none !important;
+    border-bottom: 2px solid rgb(214, 213, 213) !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
-    border: 1px solid rgb(214, 213, 213) !important;
 }
+
+input:focus {
+    border-bottom: 2px solid #802434 !important;
+}
+
 .btn-login {
-    color: #fff;
-    background-color: #802433ea !important;
+    background-color: #802433 !important;
     border-color: #802434 !important;
-    color: white !important;
+    border-radius: 0 !important;
+    color: #fff;
 }
+
 .reset-password:hover {
     cursor: pointer;
     text-decoration: underline;
 }
-/* .unsm-name {
-    font-size: 1.5em;
-}
-.fcs-name {
-    font-size: 1.2em;
-}
-.use-name {
-    font-size: 1.35em;
-} */
-.unsm-name {
-    font-size: 1em;
-}
-.fcs-name {
-    font-size: 0.8em;
-}
-.use-name {
-    font-size: 0.9em;
-}
-.show-images {
-    display: none !important;
-}
 
 .prompt-install {
-    color: #802434;
     background-color: white;
-    position: fixed;
     bottom: 0;
+    box-shadow: 0 -2px 3px rgba(15, 15, 15, 0.342);
+    color: #802434;
+    font-weight: bold;
+    position: fixed;
     width: 100%;
-    box-shadow: 0 -3px 3px rgba(15, 15, 15, 0.342);
 }
-@media only screen and (min-width: 576px) {
-    .unsm-name {
-        font-size: 1.7em;
+
+@media only screen and (min-width: 512px) {
+    .form-container {
+        width: 400px;
     }
-    .fcs-name {
-        font-size: 1.3em;
-    }
-    .use-name {
-        font-size: 1.5em;
-    }
-}
-@media only screen and (min-width: 768px) {
-    .show-images {
-        display: flex !important;
-    }
-    .logo-unsm,
-    .logo-fcs {
-        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
-    }
-    .unsm-name {
-        font-size: 1.6em;
-    }
-    .fcs-name {
-        font-size: 1.3em;
-    }
-    .use-name {
-        font-size: 1.45em;
+
+    .prompt-install {
+        border-radius: 15px 15px 0 0;
+        width: 320px;
     }
 }
+
 @media only screen and (min-width: 992px) {
-    .logo-unsm,
-    .logo-fcs {
-        max-width: 128px !important;
-        max-height: 128px !important;
+    .bg-img {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        width: calc(100% - 400px);
     }
-    .unsm-name {
-        font-size: 1.8em;
+
+    .bg-name {
+        display: flex;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial,
+            sans-serif;
+        justify-content: center;
+        width: 100%;
     }
-    .fcs-name {
-        font-size: 1.5em;
+
+    .bg-name div {
+        color: white;
+        display: block;
+        font-size: 4em;
     }
-    .use-name {
-        font-size: 1.7em;
+
+    .bg-img img {
+        height: 95%;
+    }
+
+    .bg-form {
+        width: 400px;
+    }
+
+    .prompt-install {
+        border-radius: 0;
+        width: 400px;
     }
 }
 </style>

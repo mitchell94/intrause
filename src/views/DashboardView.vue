@@ -19,7 +19,7 @@ const { programName } = useProgram(url, token, student)
     </div>
     <div class="row">
         <div class="col d-flex justify-content-center mt-3">
-            <h2 class="text-dark text-center">Obsta. {{ personName }}</h2>
+            <h2 class="text-dark text-center">{{ personName }}</h2>
         </div>
     </div>
     <div class="row justify-content-center">
@@ -51,10 +51,10 @@ const { programName } = useProgram(url, token, student)
     height: 300px;
 }
 .image-unsm {
-    background-image: url('../assets/logo-unsm.png');
+    background-image: url('../assets/logo-unsm.webp');
 }
 .image-fcs {
-    background-image: url('../assets/logo-fcs.png');
+    background-image: url('../assets/logo-fcs.webp');
 }
 p {
     font-size: 1.5em;

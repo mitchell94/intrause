@@ -40,6 +40,12 @@ const router = createRouter({
                     name: 'payments',
                     component: () => import('../views/PaymentView.vue'),
                     meta: { requiresAuth: true, requiresStudent: true }
+                },
+                {
+                    path: '/documents',
+                    name: 'documents',
+                    component: () => import('../views/DocumentView.vue'),
+                    meta: { requiresAuth: true, requiresStudent: true }
                 }
             ]
         }
