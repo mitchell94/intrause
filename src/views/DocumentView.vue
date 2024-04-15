@@ -6,7 +6,7 @@ const url = import.meta.env.VITE_API_URL
 const token = JSON.parse(localStorage.getItem('use'))
 const student = localStorage.getItem('student')
 
-// PAGOS----------------------------------------------
+// DOCUMENTOS----------------------------------------------
 let documentsList = ref([])
 let getDocuments = async () => {
     let response = await fetch(url + `/intranet/student-documents`, {
@@ -16,18 +16,15 @@ let getDocuments = async () => {
         }
     })
     let data = await response.json()
-    documentsList.value = await data.map((doc) => {
-        doc.denomination = doc.Concept.denomination
-        return doc
-    })
+    documentsList.value = data
 }
 getDocuments()
 
-// Configuración de la tabla pagos
-const documentSearchField = ['denomination']
+// Configuración de la tabla documentos
+const documentSearchField = ['Concept.denomination']
 const documentSearchValue = ref('')
 const documentsHeader = ref([
-    { text: 'DOCUMENTO', value: 'denomination' },
+    { text: 'DOCUMENTO', value: 'Concept.denomination' },
     { text: 'DESCARGA', value: 'operation' }
 ])
 
@@ -78,7 +75,7 @@ let downloadItem = async (item) => {
                         <template #item-operation="item">
                             <div class="operation-wrapper">
                                 <span
-                                    class="fa-solid fa-download"
+                                    class="fa-solid fa-download icon-option"
                                     @click="downloadItem(item)"
                                 ></span>
                             </div>
@@ -92,5 +89,9 @@ let downloadItem = async (item) => {
 <style scoped>
 .operation-wrapper span:hover {
     cursor: pointer;
+}
+
+.icon-option {
+    font-size: 1.4em;
 }
 </style>

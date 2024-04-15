@@ -79,10 +79,9 @@ let changePassword = async () => {
                                 class="fas fa-bars fa-2x me-3 p-2 cursor-pt btn-menu-md"
                                 @click="(menu = !menu), (menuClose = !menuClose)"
                             ></span>
-                            <!-- <span class="app-title">USE - FCS</span> -->
                         </li>
                         <li class="nav-item">
-                            <span class="p-2 cursor-pt d-flex opciones-cuenta">
+                            <span class="p-2 cursor-pt opciones-cuenta">
                                 <span class="fas fa-user-circle fa-2x me-2"></span>
                                 <span class="align-self-center">{{ personName }}</span>
                             </span>
@@ -118,8 +117,8 @@ let changePassword = async () => {
         <div class="menu-bg">
             <div>
                 <div class="col app-brand">
-                    <!-- <img src="../assets/iegtv_logo.webp" alt="" width="37" height="37" /> -->
-                    <span class="app-menu-title">USE - FCS</span>
+                    <!-- <img src="../assets/logo-fcs.webp" alt="" width="37" height="37" /> -->
+                    <span class="app-menu-title ms-2">USE - FCS</span>
                 </div>
                 <ul class="menu-body nav flex-column mx-3 mt-4">
                     <li class="mb-1">
@@ -143,7 +142,7 @@ let changePassword = async () => {
                         </RouterLink>
                     </li>
                     <li class="mb-1">
-                        <a href="https://usefcs.unsm.edu.pe/aulavirtual/login/" target="_blank">
+                        <a href="https://usefcs.unsm.edu.pe/aulavirtual/login/index.php" target="_blank">
                             <span class="pe-7s-browser fa-fw fa-2x"></span>Aula virtual
                         </a>
                     </li>
@@ -170,24 +169,24 @@ let changePassword = async () => {
                     <div class="modal-body">
                         <div class="row">
                             <div class="col">
-                                <label for="password_nuevo" class="silver-text-2"
+                                <label for="password_new" class="silver-text-2"
                                     >Nueva contraseña</label
                                 >
                                 <input
                                     type="password"
-                                    class="password_nuevo form-control"
+                                    class="password_new form-control"
                                     v-model="passNew"
                                 />
                             </div>
                         </div>
                         <div class="row">
                             <div class="col mt-3">
-                                <label for="password_repetir" class="silver-text-2"
+                                <label for="password_repeat" class="silver-text-2"
                                     >Repetir contraseña</label
                                 >
                                 <input
                                     type="password"
-                                    class="pasword_repetir form-control"
+                                    class="password_repeat form-control"
                                     v-model="passNewRepeat"
                                 />
                             </div>

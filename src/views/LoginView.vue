@@ -89,28 +89,28 @@ const installApp = () => {
         </div>
         <div class="bg-form">
             <div class="form-container">
-                <div class="mb-4 d-flex justify-content-center">
+                <div class="mb-3 logo-container">
                     <img src="../assets/logo-fcs.webp" alt="logo-fcs" width="140" />
                 </div>
-                <div class="mb-4">
+                <div class="mb-4 iniciar-container">
                     <span class="me-2">Iniciar</span>
                     <span>Sesión</span>
                 </div>
-                <div class="mb-4">
+                <div class="mb-4 field-container">
+                    <span>Usuario</span>
                     <input
                         type="text"
                         id="label-user"
                         class="form-control"
-                        placeholder="Usuario"
                         v-model="user"
                     />
                 </div>
-                <div class="mb-4">
+                <div class="mb-4 field-container">
+                    <span>Contraseña</span>
                     <input
                         type="password"
                         id="label-pass"
                         class="form-control"
-                        placeholder="Contraseña"
                         v-model="pass"
                     />
                 </div>
@@ -160,7 +160,12 @@ const installApp = () => {
     width: 100%;
 }
 
-.form-container > div:nth-child(2) {
+.logo-container {
+    display: flex;
+    justify-content: center;
+}
+
+.iniciar-container {
     display: flex;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial,
         sans-serif;
@@ -169,32 +174,40 @@ const installApp = () => {
     justify-content: center;
 }
 
-.form-container > div:nth-child(2) span:nth-child(2) {
+.iniciar-container span:nth-child(2) {
     color: #802434;
+}
+
+.field-container {
+    border: 1px solid rgb(133, 133, 133);
+    padding-top: 12px;
+    padding-bottom: 5px;
+    position: relative;
+}
+
+.field-container > span {
+    background-color: white;
+    color: rgb(133, 133, 133);
+    font-size: 0.9em;
+    left: 12px;
+    padding: 0 9px 0 9px;
+    position: absolute;
+    top: -12px;
 }
 
 input,
 input:focus {
     border: none !important;
-    border-bottom: 2px solid rgb(214, 213, 213) !important;
     border-radius: 0 !important;
     box-shadow: none !important;
 }
 
-input:focus {
-    border-bottom: 2px solid #802434 !important;
-}
 
 .btn-login {
     background-color: #802433 !important;
     border-color: #802434 !important;
     border-radius: 0 !important;
     color: #fff;
-}
-
-.reset-password:hover {
-    cursor: pointer;
-    text-decoration: underline;
 }
 
 .prompt-install {
