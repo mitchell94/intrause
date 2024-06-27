@@ -32,7 +32,6 @@ let downloadItem = async (item) => {
     let link = document.createElement('a')
     link.href = url + '/student-document/' + item.file
     link.target = '_blank'
-    link.download = "hola.pdf"
     link.click()
 }
 </script>

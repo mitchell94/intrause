@@ -1,0 +1,1 @@
+import{r as o,i as s}from"./index-17b39a37.js";function u(t,a,n){let r=o("");return s(()=>{fetch(t+"/intranet/student-program",{headers:{"X-Accesss-Token":a,"X-Student-Id":n}}).then(e=>e.json()).then(e=>{r.value=e.Program.denomination.toUpperCase()})}),{programName:r}}export{u};
